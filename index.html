@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Stable TV Client</title>
+    <style>
+        body { background-color: #111; color: #fff; font-family: sans-serif; padding: 20px; margin: 0; }
+        h1 { color: #ff0000; font-size: 24px; margin-bottom: 10px; }
+        .layout { display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; }
+        
+        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; box-shadow: 0px 4px 10px rgba(0,0,0,0.5); }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        .section-title { font-size: 20px; color: #aaa; margin: 15px 0 5px 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .video-list { display: flex; flex-direction: column; gap: 8px; }
+        
+        /* High-contrast styles for easy TV D-Pad navigation */
+        a { 
+            display: block; 
+            color: #ccc; 
+            font-size: 18px; 
+            padding: 12px; 
+            text-decoration: none; 
+            background-color: #1e1e1e;
+            border-radius: 4px;
+            border: 2px solid transparent; 
+        }
+        a:focus, a:hover { 
+            color: #fff; 
+            background-color: #333; 
+            border: 2px solid #ff0000; 
+            outline: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout">
+        <h1>Custom Stable Tube</h1>
+        
+        <!-- Native Embed Video Player -->
+        <div class="player-box">
+            <iframe id="tv-player" src="" allowfullscreen></iframe>
+        </div>
+
+        <!-- Video Selection Feed -->
+        <div>
+            <div class="section-title">My Video Playlist</div>
+            <div id="feed-list" class="video-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // EDIT THIS LIST: Put your favorite videos here directly!
+        // Format: { id: "YOUTUBE_VIDEO_ID", title: "WHAT_YOU_WANT_TO_SEE_ON_SCREEN" }
+        const MY_VIDEOS = [
+            { id: "dQw4w9WgXcQ", title: "1. Rick Astley - Never Gonna Give You Up" },
+            { id: "9bZkp7q19f0", title: "2. PSY - GANGNAM STYLE" },
+            { id: "jNQXAC9IVRw", title: "3. Me at the zoo (First YouTube Video)" },
+            { id: "V-_O7nl0Ii0", title: "4. Lo-Fi Hip Hop Radio - Beats to Relax/Study" }
+        ];
+
+        function playVideo(videoId) {
+            // Using the minimal streaming player layout 
+            document.getElementById('tv-player').src = "https://youtube.com/" + videoId + "?autoplay=1";
+            window.scrollTo(0, 0); 
+        }
+
+        function buildMenu() {
+            const feedList = document.getElementById('feed-list');
+            
+            MY_VIDEOS.forEach((video) => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.textContent = video.title;
+                
+                link.onclick = function(e) {
+                    e.preventDefault();
+                    playVideo(video.id);
+                };
+
+                feedList.appendChild(link);
+            });
+
+            // Autoplay the first item on the list when page boots
+            if (MY_VIDEOS.length > 0) {
+                playVideo(MY_VIDEOS[0].id);
+            }
+        }
+
+        // Run instantly when page finishes rendering
+        window.onload = buildMenu;
+    </script>
+
+</body>
+</html>
