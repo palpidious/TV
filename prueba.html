@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reproductor Nativo Ultra-Liviano</title>
+    <style>
+        body { background-color: #000000; color: #ffffff; font-family: sans-serif; padding: 20px; margin: 0; }
+        h1 { color: #ff0000; font-size: 22px; margin: 0 0 15px 0; }
+        
+        /* Contenedor básico y dimensiones fijas que tu pantalla puede renderizar sin usar flexbox */
+        .player-box { width: 100%; max-width: 720px; margin-bottom: 20px; }
+        video { width: 100%; height: auto; background: #111111; }
+        
+        .menu-title { font-size: 18px; color: #aaaaaa; margin-bottom: 10px; }
+        
+        /* Botones grandes y con alto contraste para facilitar el uso del mando a distancia (D-Pad) */
+        a { 
+            display: block; 
+            color: #ffffff; 
+            font-size: 16px; 
+            padding: 15px; 
+            text-decoration: none; 
+            background-color: #222222;
+            margin-bottom: 8px;
+            border: 2px solid #222222;
+        }
+        /* Borde rojo intenso visible desde el sofá cuando el cursor del TV se posiciona encima */
+        a:focus, a:hover { 
+            background-color: #333333; 
+            border: 2px solid #ff0000; 
+            outline: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Naked Video Player</h1>
+    
+    <div class="player-box">
+        <!-- El reproductor nativo del chip del televisor, libre de todo el entorno gráfico de Google -->
+        <video id="native-player" controls="controls" autoplay="autoplay"></video>
+    </div>
+
+    <div class="menu-title">Lista de Videos:</div>
+    <div id="video-list"></div>
+
+    <script type="text/javascript">
+        // Lista manual de identificadores de YouTube. Aquí puedes pegar los códigos de tus videos.
+        var MIS_VIDEOS = [
+            { id: "dQw4w9WgXcQ", title: "1. Rick Astley - Never Gonna Give You Up" },
+            { id: "jNQXAC9IVRw", title: "2. Me at the zoo (Primer Video de YT)" },
+            { id: "V-_O7nl0Ii0", title: "3. Lo-Fi Hip Hop Radio" }
+        ];
+
+        // Instancia pública de Invidious verificada en 2026 que reenvía datos multimedia (Proxy)
+        var INVIDIOUS_NODE = "https://yewtu.be";
+
+        function playNakedStream(videoId) {
+            // "local=true" fuerza al servidor a entregarte el archivo de video procesado como un .mp4 local
+            // "itag=18" obliga a YouTube a enviar el flujo universal H.264 compatible por hardware con tu TV
+            var directMp4Url = INVIDIOUS_NODE + "/latest_version?id=" + videoId + "&itag=18&local=true";
+            
+            var videoTag = document.getElementById("native-player");
+            if (videoTag) {
+                videoTag.src = directMp4Url;
+                
+                // Forzado de comandos de carga requerido por motores antiguos de Smart TVs
+                if (typeof videoTag.load === "function") { videoTag.load(); }
+                if (typeof videoTag.play === "function") { videoTag.play(); }
+            }
+        }
+
+        function createTvMenu() {
+            var container = document.getElementById("video-list");
+            if (!container) { return; }
+            
+            // Bucle 'for' clásico estándar ES5 que nunca romperá el navegador Opera
+            for (var i = 0; i < MIS_VIDEOS.length; i++) {
+                (function() {
+                    var videoData = MIS_VIDEOS[i];
+                    var button = document.createElement("a");
+                    
+                    button.setAttribute("href", "#");
+                    button.innerHTML = videoData.title;
+                    
+                    button.onclick = function(e) {
+                        if (e && e.preventDefault) { e.preventDefault(); }
+                        playNakedStream(videoData.id);
+                        return false; // Evita el reinicio del árbol de ejecución en navegadores viejos
+                    };
+
+                    container.appendChild(button);
+                })();
+            }
+
+            // Iniciar de forma automática el primer video de la lista al cargar la interfaz
+            if (MIS_VIDEOS.length > 0) {
+                playNakedStream(MIS_VIDEOS[0].id);
+            }
+        }
+
+        // Evento seguro de inicialización de ventana
+        window.onload = createTvMenu;
+    </script>
+
+</body>
+</html>
