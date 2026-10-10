@@ -2,78 +2,80 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Reproductor Plano M3U8</title>
+    <title>Reproductor M3U8 Base</title>
     <style>
         body { background-color: #000000; color: #ffffff; font-family: sans-serif; padding: 20px; margin: 0; }
         
-        /* Contenedor básico para el reproductor */
+        /* Contenedor básico alineado para la pantalla */
         .player-box { width: 100%; max-width: 720px; margin: 0 auto; }
         video { width: 100%; height: auto; background: #111111; display: block; }
         
         .status-msg { text-align: center; margin-top: 15px; font-style: italic; color: #aaaaaa; font-size: 14px; }
     </style>
 
-    <!-- Librería HLS.js indispensable para que Chrome, Firefox y Edge en la PC entiendan el formato m3u8 -->
-    <script type="text/javascript" src="https://jsdelivr.net"></script>
+    <!-- Enlace de producción oficial compatible con HTTPS (GitHub) y HTTP (Localhost) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 </head>
 <body>
 
     <div class="player-box">
-        <!-- El elemento de video nativo que proyectará la transmisión -->
         <video id="tv-player" controls="controls" autoplay="autoplay"></video>
-        <div id="status" class="status-msg">Inicializando reproducción...</div>
+        <div id="status" class="status-msg">Inicializando canal multimedia...</div>
     </div>
 
     <script type="text/javascript">
         // =========================================================================
-        // REEMPLAZA ÚNICAMENTE EL TEXTO ENTRE COMILLAS POR TU DIRECCIÓN M3U8 REAL:
+        // REEMPLAZA ÚNICAMENTE ESTE TEXTO POR TU DIRECCIÓN M3U8 DE PRUEBA:
         // =========================================================================
         var URL_M3U8_REAL = "https://longtailvideo.com";
+        // =========================================================================
         
-        function iniciarReproductor() {
-            var videoElement = document.getElementById("tv-player");
-            var statusElement = document.getElementById("status");
+        function arrancarFlujo() {
+            var video = document.getElementById("tv-player");
+            var status = document.getElementById("status");
             
-            if (!videoElement) { return; }
+            if (!video) { return; }
 
-            // CASO 1: El navegador de escritorio requiere la librería HLS.js (Chrome, Firefox, Edge)
-            if (typeof Hls !== "undefined" && Hls.isSupported()) {
-                var hlsInstance = new Hls();
-                hlsInstance.loadSource(URL_M3U8_REAL);
-                hlsInstance.attachMedia(videoElement);
+            // PRIORIDAD 1: Entornos de PC de escritorio (Chrome, Firefox, Edge, etc.)
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(URL_M3U8_REAL);
+                hls.attachMedia(video);
                 
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    statusElement.innerHTML = "Reproduciendo flujo mediante HLS.js";
-                    statusElement.style.color = "#00ff00";
-                    videoElement.play();
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    status.innerHTML = "Estado: Reproducción activa mediante librería HLS.";
+                    status.style.color = "#00ff00";
+                    video.play();
                 });
 
-                hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                hls.on(Hls.Events.ERROR, function(event, data) {
                     if (data.fatal) {
-                        statusElement.innerHTML = "Error de red o transmisión inválida.";
-                        statusElement.style.color = "#ff3333";
+                        status.innerHTML = "Error: Caída de red o fragmentos M3U8 inválidos.";
+                        status.style.color = "#ff3333";
                     }
                 });
             } 
-            // CASO 2: Soporte nativo para m3u8 (Safari o navegadores móviles)
-            else if (videoElement.canPlayType && videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                videoElement.src = URL_M3U8_REAL;
+            
+            // PRIORIDAD 2: Entornos con soporte de hardware directo nativo
+            else if (video.canPlayType && video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = URL_M3U8_REAL;
                 
-                if (typeof videoElement.load === "function") { videoElement.load(); }
-                if (typeof videoElement.play === "function") { videoElement.play(); }
-                
-                statusElement.innerHTML = "Reproduciendo mediante soporte nativo";
-                statusElement.style.color = "#00ff00";
+                video.addEventListener('loadedmetadata', function() {
+                    status.innerHTML = "Estado: Reproducción activa mediante decodificador nativo.";
+                    status.style.color = "#00ff00";
+                    video.play();
+                });
             } 
-            // CASO 3: Incompatibilidad total
+            
+            // FALLBACK: Sin compatibilidad encontrada
             else {
-                statusElement.innerHTML = "Error: Este entorno no soporta flujos HLS/M3U8.";
-                statusElement.style.color = "#ff3333";
+                status.innerHTML = "Error: Este entorno no soporta flujos HLS/M3U8.";
+                status.style.color = "#ff3333";
             }
         }
 
-        // Ejecución automática al cargar la página
-        window.onload = iniciarReproductor;
+        // Ejecución limpia del árbol de renderizado de la ventana
+        window.onload = arrancarFlujo;
     </script>
 
 </body>
