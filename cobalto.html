@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Play M3U8 with Hls.js</title>
+    <!-- Include the Hls.js library via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+    <video id="video" controls autoplay width="640" height="360"></video>
+
+    <script>
+        const video = document.getElementById('video');
+        const videoSrc = 'https://manifest.googlevideo.com/api/manifest/hls_variant/expire/1791671903/ei/_2nKaoWyNeT7-LAP1NS7gQ0/ip/2800%3Acd0%3A100e%3A800%3A7913%3A5434%3A202a%3A4055/id/9e176a45ec67826e/source/youtube/requiressl/yes/xpc/EgVo2aDSNQ%3D%3D/playback_host/rr3---sn-xouxacv-a2cl.googlevideo.com/cps/397/met/1791650303%2C/mh/38/mm/18%2C29/mn/sn-xouxacv-a2cl%2Csn-2onja5-5b/ms/aub%2Crdu/mv/m/mvi/3/pl/44/rms/aub%2Caub/hfr/1/demuxed/1/tts_caps/1/maudio/1/initcwndbps/984375/bui/AWzQHwp_UJMP0e4Msp-u4saJq_JLyXZmShvMjvegHuZaFFlrZqpsk_6AVbTZsC7qjbg5wHkuFtZ_IhcV/spc/I-rgIe26Ny5a9-ESC_pOxso4xvPT-Ms46negH886GJfhMMITyA6zgR5Vu0NJekA/vprv/1/go/1/rqh/5/epbp/1/mt/1791649780/fvip/5/nvgoi/1/short_key/1/ncsapi/1/keepalive/yes/fexp/51565115%2C52112905%2C52184232%2C52250513/dover/13/itag/0/playlist_type/DVR/sparams/expire%2Cei%2Cip%2Cid%2Csource%2Crequiressl%2Cxpc%2Chfr%2Cdemuxed%2Ctts_caps%2Cmaudio%2Cbui%2Cspc%2Cvprv%2Cgo%2Crqh%2Citag%2Cplaylist_type/sig/AE0s2JYwRQIgdM3VOU8VvQdwcaffjj7LX7sfu2z-adTygAdS6uNTP3sCIQDxD51FOX6DrBXTDlTB1UZ4idOkmSQ-smLgLHjepJR54Q%3D%3D/lsparams/playback_host%2Ccps%2Cmet%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps/lsig/APaTxxMwRQIgSAERLk5HlyVrsjnS7RZgy9vvQbtXzvMSrptlOdl5iJUCIQDnTuYnr0nnuDP6hcI4DibeXKhhA3Bz79-uwq03nJxUFA%3D%3D/file/index.m3u8'; // Replace with your .m3u8 URL
+
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
+            });
+        }
+        // Fallback for Safari/iOS devices which support native HLS playback
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        }
+    </script>
+
+</body>
+</html>
